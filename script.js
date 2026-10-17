@@ -366,8 +366,63 @@ function handlePrint() {
 }
 
 // ==========================================
-// 7. 구글 스프레드시트(Apps Script) 연동
+// 7. 구글 스프레드시트(Apps Script) 연동 및 정규화
 // ==========================================
+
+// 구글 스프레드시트에서 가져온 학생 데이터 안전 정규화 (1D/2D 배열, 객체 지원)
+function normalizeStudents(rawStudents) {
+  if (!rawStudents) return [];
+  if (typeof rawStudents === 'string') {
+    return rawStudents.split(/[\n,]/).map(s => s.trim()).filter(Boolean);
+  }
+  if (!Array.isArray(rawStudents)) return [];
+  return rawStudents.map(item => {
+    if (!item) return '';
+    if (typeof item === 'string') return item.trim();
+    if (Array.isArray(item)) return String(item[0] || '').trim();
+    if (typeof item === 'object') {
+      return String(item.name || item.studentName || item.student || item.이름 || item.학생 || Object.values(item)[0] || '').trim();
+    }
+    return String(item).trim();
+  }).filter(Boolean);
+}
+
+// 구글 스프레드시트에서 가져온 역할 데이터 안전 정규화 (이름, 이모지, 설명 누락 방지)
+function normalizeRoles(rawRoles) {
+  if (!rawRoles) return [];
+  if (!Array.isArray(rawRoles)) return [];
+  return rawRoles.map((item, idx) => {
+    if (!item) return null;
+    if (typeof item === 'string') {
+      const trimmed = item.trim();
+      return {
+        name: trimmed,
+        emoji: '⭐',
+        desc: `${trimmed} 역할을 성실하게 수행해요.`
+      };
+    }
+    if (Array.isArray(item)) {
+      const name = String(item[0] || '').trim();
+      if (!name) return null;
+      return {
+        name,
+        emoji: String(item[1] || '⭐').trim() || '⭐',
+        desc: String(item[2] || `${name} 역할을 성실하게 수행해요.`).trim()
+      };
+    }
+    if (typeof item === 'object') {
+      const name = String(item.name || item.roleName || item.역할 || item.역할명 || item.title || Object.values(item)[0] || '').trim();
+      if (!name) return null;
+      return {
+        name,
+        emoji: String(item.emoji || item.roleEmoji || item.아이콘 || item.icon || '⭐').trim() || '⭐',
+        desc: String(item.desc || item.roleDesc || item.설명 || item.description || `${name} 역할을 성실하게 수행해요.`).trim()
+      };
+    }
+    return null;
+  }).filter(Boolean);
+}
+
 function openSheetModal(actionType = 'load') {
   const modal = document.getElementById('sheetModal');
   const inputUrl = document.getElementById('sheetUrlInput');
@@ -395,6 +450,7 @@ async function handleSheetLoad() {
 
   if (!url) {
     openSheetModal('load');
+    showToast('💡 먼저 Google Apps Script 웹 앱 URL을 입력해 주세요.');
     return;
   }
 
@@ -407,26 +463,64 @@ async function handleSheetLoad() {
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
 
-    if (data.students && Array.isArray(data.students) && data.students.length > 0) {
-      AppState.students = data.students;
+    const rawData = data.data || data;
+    let loadedStudentsCount = 0;
+    let loadedRolesCount = 0;
+
+    // 1. 학생 명단 정규화 및 저장
+    const rawStudents = rawData.students || rawData.studentList || rawData.학생명단;
+    const normalizedStudents = normalizeStudents(rawStudents);
+    if (normalizedStudents.length > 0) {
+      AppState.students = normalizedStudents;
       localStorage.setItem('class_students', JSON.stringify(AppState.students));
-    }
-    if (data.roles && Array.isArray(data.roles) && data.roles.length > 0) {
-      AppState.roles = data.roles;
-      localStorage.setItem('class_roles', JSON.stringify(AppState.roles));
-    }
-    if (data.className) {
-      AppState.className = data.className;
-      localStorage.setItem('class_name', data.className);
-      const nameInput = document.getElementById('classNameInput');
-      if (nameInput) nameInput.value = data.className;
+      loadedStudentsCount = normalizedStudents.length;
     }
 
+    // 2. 역할 명단 정규화 및 저장
+    const rawRoles = rawData.roles || rawData.roleList || rawData.역할명단;
+    const normalizedRoles = normalizeRoles(rawRoles);
+    if (normalizedRoles.length > 0) {
+      AppState.roles = normalizedRoles;
+      localStorage.setItem('class_roles', JSON.stringify(AppState.roles));
+      loadedRolesCount = normalizedRoles.length;
+    }
+
+    // 3. 학급명 업데이트
+    const className = rawData.className || rawData.학급명 || rawData.title;
+    if (className) {
+      AppState.className = String(className).trim();
+      localStorage.setItem('class_name', AppState.className);
+      const nameInput = document.getElementById('classNameInput');
+      if (nameInput) nameInput.value = AppState.className;
+    }
+
+    // 4. 명단 관리 모달 내부 텍스트 영역 및 역할 목록 즉시 동기화
+    const studentTextarea = document.getElementById('studentTextarea');
+    if (studentTextarea) {
+      studentTextarea.value = AppState.students.join('\n');
+    }
+    const studentCountBadge = document.getElementById('modalStudentCount');
+    if (studentCountBadge) {
+      studentCountBadge.textContent = `(${AppState.students.length}명)`;
+    }
+    renderManageRoleList();
+
+    // 5. 새 명단 반영에 따라 기존 배정 상태 초기화 (새 명단으로 🎲 배정할 수 있도록 준비)
+    AppState.assignments = null;
+    AppState.assignedDate = null;
+    localStorage.removeItem('class_assignments');
+    localStorage.removeItem('class_assigned_date');
+
+    // 6. 메인 화면 통계 및 배정 영역 리프레시
     updateStatsRibbon();
+    renderAssignments();
+    syncPrintBoard();
+
     closeSheetModal();
-    showToast(`✅ 시트에서 학생 ${AppState.students.length}명, 역할 ${AppState.roles.length}개를 불러왔습니다!`);
+    showToast(`✅ 시트 연동 성공! 학생 ${loadedStudentsCount || AppState.students.length}명, 역할 ${loadedRolesCount || AppState.roles.length}개가 명단에 반영되었습니다!`);
   } catch (err) {
-    showToast('⚠️ 연결에 실패했습니다. Apps Script URL과 웹앱 권한(모든 사용자)을 확인해 주세요.');
+    console.error('Sheet load error:', err);
+    showToast('⚠️ 연결에 실패했습니다. Apps Script 배포 URL과 웹앱 권한(모든 사용자)을 확인해 주세요.');
   }
 }
 
@@ -540,10 +634,18 @@ function exportCsvBackup() {
 function openManageModal() {
   const modal = document.getElementById('manageModal');
   const studentTextarea = document.getElementById('studentTextarea');
+  const studentCountBadge = document.getElementById('modalStudentCount');
   const roleCountBadge = document.getElementById('modalRoleCount');
 
+  // 최신 AppState 명단으로 textarea와 배지 갱신
   if (studentTextarea) {
     studentTextarea.value = AppState.students.join('\n');
+  }
+  if (studentCountBadge) {
+    studentCountBadge.textContent = `(${AppState.students.length}명)`;
+  }
+  if (roleCountBadge) {
+    roleCountBadge.textContent = `(총 ${AppState.roles.length}개)`;
   }
 
   renderManageRoleList();
@@ -561,22 +663,25 @@ function renderManageRoleList() {
   if (modalRoleCount) modalRoleCount.textContent = `(총 ${AppState.roles.length}개)`;
 
   if (roleListBox) {
-    roleListBox.innerHTML = AppState.roles.map((r, i) => `
-      <div class="list-preview-item">
-        <span><strong>${i + 1}.</strong> ${r.emoji} ${r.name}</span>
-        <span style="color: #64748B; font-size: 0.75rem;">${r.desc.slice(0, 16)}...</span>
-      </div>
-    `).join('');
+    roleListBox.innerHTML = AppState.roles.map((r, i) => {
+      const name = r.name || '역할';
+      const emoji = r.emoji || '⭐';
+      const desc = r.desc || `${name} 역할을 성실하게 수행해요.`;
+      const shortDesc = desc.length > 20 ? desc.slice(0, 18) + '...' : desc;
+      return `
+        <div class="list-preview-item">
+          <span><strong>${i + 1}.</strong> ${emoji} ${name}</span>
+          <span style="color: #64748B; font-size: 0.75rem;" title="${desc}">${shortDesc}</span>
+        </div>
+      `;
+    }).join('');
   }
 }
 
 function saveManagedList() {
   const studentTextarea = document.getElementById('studentTextarea');
   if (studentTextarea) {
-    const lines = studentTextarea.value
-      .split('\n')
-      .map(s => s.trim())
-      .filter(Boolean);
+    const lines = normalizeStudents(studentTextarea.value);
 
     if (lines.length === 0) {
       showToast('⚠️ 학생 명단을 최소 1명 이상 입력해 주세요.');
@@ -587,7 +692,15 @@ function saveManagedList() {
     localStorage.setItem('class_students', JSON.stringify(AppState.students));
   }
 
+  // 학생 명단이 변경되었으므로 기존 배정 상태 초기화하여 새로 배정할 수 있게 준비
+  AppState.assignments = null;
+  AppState.assignedDate = null;
+  localStorage.removeItem('class_assignments');
+  localStorage.removeItem('class_assigned_date');
+
   updateStatsRibbon();
+  renderAssignments();
+  syncPrintBoard();
   closeManageModal();
   showToast(`✅ 학생 명단(${AppState.students.length}명)이 저장되었습니다! [🎲 배정하기]를 눌러주세요.`);
 }
@@ -712,7 +825,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnPrint = document.getElementById('btnPrint');
   const btnRoll = document.getElementById('btnRoll');
 
-  if (btnSheetLoad) btnSheetLoad.addEventListener('click', () => openSheetModal('load'));
+  if (btnSheetLoad) btnSheetLoad.addEventListener('click', () => {
+    if (AppState.sheetUrl) {
+      handleSheetLoad();
+    } else {
+      openSheetModal('load');
+    }
+  });
   if (btnSheetSave) btnSheetSave.addEventListener('click', () => {
     if (!AppState.sheetUrl) {
       openSheetModal('save');
@@ -726,11 +845,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 시트 모달 버튼 바인딩
   const btnCloseSheetModal = document.getElementById('btnCloseSheetModal');
+  const btnFetchSheetNow = document.getElementById('btnFetchSheetNow');
   const btnSaveSheetUrl = document.getElementById('btnSaveSheetUrl');
   const btnCopyScript = document.getElementById('btnCopyScript');
   const btnExportCsv = document.getElementById('btnExportCsv');
 
   if (btnCloseSheetModal) btnCloseSheetModal.addEventListener('click', closeSheetModal);
+  if (btnFetchSheetNow) btnFetchSheetNow.addEventListener('click', handleSheetLoad);
   if (btnSaveSheetUrl) {
     btnSaveSheetUrl.addEventListener('click', () => {
       const urlInput = document.getElementById('sheetUrlInput');

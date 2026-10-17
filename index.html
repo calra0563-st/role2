@@ -167,16 +167,17 @@
         <div class="modal-body">
           <p>
             구글 스프레드시트의 <strong>Apps Script 웹 앱 URL</strong>을 등록하면 학생 명단을 실시간으로 가져오거나 배정 결과를 스프레드시트에 자동 기록할 수 있습니다.
-          </p>
-
           <div class="form-group">
             <label for="sheetUrlInput" class="form-label">Apps Script 웹 앱 URL (Web App URL)</label>
-            <input type="url" id="sheetUrlInput" class="form-input" placeholder="https://script.google.com/macros/s/.../exec" />
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <input type="url" id="sheetUrlInput" class="form-input" style="flex: 1; min-width: 260px;" placeholder="https://script.google.com/macros/s/.../exec" />
+              <button id="btnFetchSheetNow" type="button" class="btn btn-sheet-load" style="font-weight: 800;">🔄 지금 불러오기</button>
+            </div>
             <small style="color: #64748B;">* 배포 시 '액세스 권한: 모든 사용자'로 설정해야 브라우저에서 안전하게 연동됩니다.</small>
           </div>
 
           <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <button id="btnSaveSheetUrl" type="button" class="btn btn-sheet-load">URL 저장하기</button>
+            <button id="btnSaveSheetUrl" type="button" class="btn btn-manage">URL만 저장</button>
             <button id="btnCopyScript" type="button" class="btn btn-manage">Apps Script 예시 코드 복사</button>
             <button id="btnExportCsv" type="button" class="btn btn-print">CSV 백업 다운로드</button>
           </div>
@@ -208,7 +209,7 @@
         <div class="modal-body">
           <div class="manage-grid">
             <div class="form-group">
-              <label for="studentTextarea" class="form-label">학생 명단 (한 줄에 한 명씩)</label>
+              <label for="studentTextarea" class="form-label">학생 명단 (한 줄에 한 명씩) <span id="modalStudentCount" style="color: #64748B;">(12명)</span></label>
               <textarea id="studentTextarea" class="form-textarea" rows="10" placeholder="김민준&#10;이서아&#10;박도윤..."></textarea>
             </div>
             <div class="form-group">
