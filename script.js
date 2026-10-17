@@ -80,10 +80,36 @@ const THEMES = ['mint', 'yellow', 'pink', 'blue', 'purple', 'coral'];
 // ==========================================
 // 2. 앱 상태 관리 (State)
 // ==========================================
+function getStoredStudents() {
+  try {
+    const raw = localStorage.getItem('class_students');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed.map(s => String(s).trim()).filter(Boolean);
+      }
+    }
+  } catch (e) {}
+  return [...DEFAULT_STUDENTS];
+}
+
+function getStoredRoles() {
+  try {
+    const raw = localStorage.getItem('class_roles');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
+    }
+  } catch (e) {}
+  return [...DEFAULT_ROLES];
+}
+
 const AppState = {
   className: localStorage.getItem('class_name') || '3학년 2반',
-  students: JSON.parse(localStorage.getItem('class_students')) || [...DEFAULT_STUDENTS],
-  roles: JSON.parse(localStorage.getItem('class_roles')) || [...DEFAULT_ROLES],
+  students: getStoredStudents(),
+  roles: getStoredRoles(),
   assignments: JSON.parse(localStorage.getItem('class_assignments')) || null,
   assignedDate: localStorage.getItem('class_assigned_date') || null,
   sheetUrl: localStorage.getItem('class_sheet_url') || '',
@@ -444,6 +470,37 @@ function closeSheetModal() {
   if (modal) modal.classList.remove('is-active');
 }
 
+function fetchWithJsonp(url) {
+  return new Promise((resolve, reject) => {
+    const callbackName = 'sheetCallback_' + Date.now();
+    const script = document.createElement('script');
+    const timer = setTimeout(() => {
+      cleanup();
+      reject(new Error('JSONP Timeout'));
+    }, 6000);
+
+    window[callbackName] = function(data) {
+      cleanup();
+      resolve(data);
+    };
+
+    function cleanup() {
+      clearTimeout(timer);
+      delete window[callbackName];
+      if (script.parentNode) script.parentNode.removeChild(script);
+    }
+
+    script.onerror = function() {
+      cleanup();
+      reject(new Error('JSONP Script Error'));
+    };
+
+    const delim = url.includes('?') ? '&' : '?';
+    script.src = `${url}${delim}action=getData&callback=${callbackName}&t=${Date.now()}`;
+    document.head.appendChild(script);
+  });
+}
+
 async function handleSheetLoad() {
   const inputUrl = document.getElementById('sheetUrlInput');
   const url = inputUrl ? inputUrl.value.trim() : AppState.sheetUrl;
@@ -458,11 +515,30 @@ async function handleSheetLoad() {
   localStorage.setItem('class_sheet_url', url);
 
   showToast('🔄 스프레드시트에서 데이터를 가져오는 중...');
+  let data = null;
+
+  // 1차 시도: 표준 fetch
   try {
     const res = await fetch(`${url}?action=getData&timestamp=${Date.now()}`);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
+    if (res.ok) {
+      data = await res.json();
+    }
+  } catch (fetchErr) {
+    console.warn('Standard fetch failed, trying JSONP fallback...', fetchErr);
+    // 2차 시도: JSONP 우회 시도
+    try {
+      data = await fetchWithJsonp(url);
+    } catch (jsonpErr) {
+      console.warn('JSONP fallback also failed:', jsonpErr);
+    }
+  }
 
+  if (!data) {
+    showToast('⚠️ 구글 권한 차단: Apps Script [새 배포]에서 [액세스 권한: 모든 사용자]로 설정되었는지 확인해 주세요. (권한 오류 시 [명단 관리]에서 시트 복사·붙여넣기를 이용하세요)');
+    return;
+  }
+
+  try {
     const rawData = data.data || data;
     let loadedStudentsCount = 0;
     let loadedRolesCount = 0;
@@ -499,9 +575,17 @@ async function handleSheetLoad() {
     if (studentTextarea) {
       studentTextarea.value = AppState.students.join('\n');
     }
+    const roleTextarea = document.getElementById('roleTextarea');
+    if (roleTextarea) {
+      roleTextarea.value = AppState.roles.map(r => `${r.name || '역할'} ${r.emoji || '⭐'}`).join('\n');
+    }
     const studentCountBadge = document.getElementById('modalStudentCount');
     if (studentCountBadge) {
       studentCountBadge.textContent = `(${AppState.students.length}명)`;
+    }
+    const roleCountBadge = document.getElementById('modalRoleCount');
+    if (roleCountBadge) {
+      roleCountBadge.textContent = `(${AppState.roles.length}개)`;
     }
     renderManageRoleList();
 
@@ -519,8 +603,8 @@ async function handleSheetLoad() {
     closeSheetModal();
     showToast(`✅ 시트 연동 성공! 학생 ${loadedStudentsCount || AppState.students.length}명, 역할 ${loadedRolesCount || AppState.roles.length}개가 명단에 반영되었습니다!`);
   } catch (err) {
-    console.error('Sheet load error:', err);
-    showToast('⚠️ 연결에 실패했습니다. Apps Script 배포 URL과 웹앱 권한(모든 사용자)을 확인해 주세요.');
+    console.error('Sheet data processing error:', err);
+    showToast('⚠️ 시트 데이터를 처리하는 중 오류가 발생했습니다.');
   }
 }
 
@@ -632,24 +716,54 @@ function exportCsvBackup() {
 // 8. 명단 및 역할 관리 모달
 // ==========================================
 function openManageModal() {
-  const modal = document.getElementById('manageModal');
-  const studentTextarea = document.getElementById('studentTextarea');
-  const studentCountBadge = document.getElementById('modalStudentCount');
-  const roleCountBadge = document.getElementById('modalRoleCount');
+  try {
+    const modal = document.getElementById('manageModal');
+    const studentTextarea = document.getElementById('studentTextarea');
+    const roleTextarea = document.getElementById('roleTextarea');
+    const studentCountBadge = document.getElementById('modalStudentCount');
+    const roleCountBadge = document.getElementById('modalRoleCount');
 
-  // 최신 AppState 명단으로 textarea와 배지 갱신
-  if (studentTextarea) {
-    studentTextarea.value = AppState.students.join('\n');
-  }
-  if (studentCountBadge) {
-    studentCountBadge.textContent = `(${AppState.students.length}명)`;
-  }
-  if (roleCountBadge) {
-    roleCountBadge.textContent = `(총 ${AppState.roles.length}개)`;
-  }
+    // 비어있거나 손상된 경우 기본값 복구
+    if (!AppState.students || AppState.students.length === 0) {
+      AppState.students = [...DEFAULT_STUDENTS];
+    }
+    if (!AppState.roles || AppState.roles.length === 0) {
+      AppState.roles = [...DEFAULT_ROLES];
+    }
 
-  renderManageRoleList();
-  if (modal) modal.classList.add('is-active');
+    // 학생 명단 텍스트 채우기
+    if (studentTextarea) {
+      studentTextarea.value = AppState.students.join('\n');
+    }
+
+    // 역할 목록 텍스트 채우기 (한 줄에 "역할명 이모지, 설명" 형태)
+    if (roleTextarea) {
+      roleTextarea.value = AppState.roles.map(r => {
+        const name = r.name || '역할';
+        const emoji = r.emoji || '⭐';
+        const desc = r.desc ? `, ${r.desc}` : '';
+        return `${name} ${emoji}${desc}`;
+      }).join('\n');
+    }
+
+    // 배지 숫자 갱신
+    if (studentCountBadge) {
+      studentCountBadge.textContent = `(${AppState.students.length}명)`;
+    }
+    if (roleCountBadge) {
+      roleCountBadge.textContent = `(${AppState.roles.length}개)`;
+    }
+
+    renderManageRoleList();
+
+    if (modal) {
+      modal.classList.add('is-active');
+    }
+  } catch (err) {
+    console.error('Error opening manage modal:', err);
+    const modal = document.getElementById('manageModal');
+    if (modal) modal.classList.add('is-active');
+  }
 }
 
 function closeManageModal() {
@@ -657,17 +771,70 @@ function closeManageModal() {
   if (modal) modal.classList.remove('is-active');
 }
 
+function togglePasteBox() {
+  const box = document.getElementById('pasteBoxContainer');
+  if (box) {
+    box.style.display = box.style.display === 'none' ? 'block' : 'none';
+  }
+}
+
+function handleApplyPastedTable() {
+  const textarea = document.getElementById('rawSheetPasteInput');
+  if (!textarea || !textarea.value.trim()) {
+    showToast('⚠️ 붙여넣을 스프레드시트 텍스트를 입력해 주세요.');
+    return;
+  }
+
+  const lines = textarea.value.split('\n').map(l => l.trim()).filter(Boolean);
+  const students = [];
+  const roles = [];
+
+  lines.forEach(line => {
+    // 탭(\t) 또는 쉼표(,)로 구분된 열 분리
+    const cols = line.split(/\t|,/).map(c => c.trim()).filter(Boolean);
+    if (cols.length >= 2) {
+      students.push(cols[0]);
+      roles.push(cols[1]);
+    } else if (cols.length === 1) {
+      students.push(cols[0]);
+    }
+  });
+
+  if (students.length > 0) {
+    const studentTextarea = document.getElementById('studentTextarea');
+    if (studentTextarea) studentTextarea.value = students.join('\n');
+    const studentCountBadge = document.getElementById('modalStudentCount');
+    if (studentCountBadge) studentCountBadge.textContent = `(${students.length}명)`;
+  }
+
+  if (roles.length > 0) {
+    const roleTextarea = document.getElementById('roleTextarea');
+    if (roleTextarea) {
+      roleTextarea.value = roles.map(r => {
+        const emojiMatch = r.match(/(\p{Emoji_Presentation}|\p{Extended_Pictographic})/u);
+        const emoji = emojiMatch ? emojiMatch[0] : '⭐';
+        const name = r.replace(/(\p{Emoji_Presentation}|\p{Extended_Pictographic})/gu, '').trim();
+        return `${name || r} ${emoji}`;
+      }).join('\n');
+    }
+    const roleCountBadge = document.getElementById('modalRoleCount');
+    if (roleCountBadge) roleCountBadge.textContent = `(${roles.length}개)`;
+  }
+
+  showToast(`📋 시트에서 학생 ${students.length}명, 역할 ${roles.length}개를 가져왔습니다! 아래 [명단 저장하기]를 눌러주세요.`);
+}
+
 function renderManageRoleList() {
   const roleListBox = document.getElementById('manageRoleListBox');
   const modalRoleCount = document.getElementById('modalRoleCount');
-  if (modalRoleCount) modalRoleCount.textContent = `(총 ${AppState.roles.length}개)`;
+  if (modalRoleCount) modalRoleCount.textContent = `(${AppState.roles.length}개)`;
 
   if (roleListBox) {
     roleListBox.innerHTML = AppState.roles.map((r, i) => {
-      const name = r.name || '역할';
-      const emoji = r.emoji || '⭐';
-      const desc = r.desc || `${name} 역할을 성실하게 수행해요.`;
-      const shortDesc = desc.length > 20 ? desc.slice(0, 18) + '...' : desc;
+      const name = (r && r.name) || '역할';
+      const emoji = (r && r.emoji) || '⭐';
+      const desc = (r && r.desc) || `${name} 역할을 성실하게 수행해요.`;
+      const shortDesc = desc.length > 22 ? desc.slice(0, 20) + '...' : desc;
       return `
         <div class="list-preview-item">
           <span><strong>${i + 1}.</strong> ${emoji} ${name}</span>
@@ -680,19 +847,40 @@ function renderManageRoleList() {
 
 function saveManagedList() {
   const studentTextarea = document.getElementById('studentTextarea');
+  const roleTextarea = document.getElementById('roleTextarea');
+
+  // 1. 학생 명단 저장
   if (studentTextarea) {
     const lines = normalizeStudents(studentTextarea.value);
-
     if (lines.length === 0) {
       showToast('⚠️ 학생 명단을 최소 1명 이상 입력해 주세요.');
       return;
     }
-
     AppState.students = lines;
     localStorage.setItem('class_students', JSON.stringify(AppState.students));
   }
 
-  // 학생 명단이 변경되었으므로 기존 배정 상태 초기화하여 새로 배정할 수 있게 준비
+  // 2. 역할 목록 저장
+  if (roleTextarea && roleTextarea.value.trim()) {
+    const roleLines = roleTextarea.value.split('\n').map(s => s.trim()).filter(Boolean);
+    if (roleLines.length > 0) {
+      const parsedRoles = roleLines.map(line => {
+        const parts = line.split(',');
+        const first = (parts[0] || '').trim();
+        const emojiMatch = first.match(/(\p{Emoji_Presentation}|\p{Extended_Pictographic})/u);
+        const emoji = emojiMatch ? emojiMatch[0] : (parts[1] ? parts[1].trim() : '⭐');
+        const name = first.replace(/(\p{Emoji_Presentation}|\p{Extended_Pictographic})/gu, '').trim();
+        const desc = parts.length > 2
+          ? parts.slice(2).join(',').trim()
+          : (parts.length === 2 && !emojiMatch ? parts[1].trim() : `${name} 역할을 성실하게 수행해요.`);
+        return { name: name || first, emoji, desc };
+      });
+      AppState.roles = parsedRoles;
+      localStorage.setItem('class_roles', JSON.stringify(AppState.roles));
+    }
+  }
+
+  // 명단 변경에 따라 기존 배정 상태 초기화
   AppState.assignments = null;
   AppState.assignedDate = null;
   localStorage.removeItem('class_assignments');
@@ -702,7 +890,7 @@ function saveManagedList() {
   renderAssignments();
   syncPrintBoard();
   closeManageModal();
-  showToast(`✅ 학생 명단(${AppState.students.length}명)이 저장되었습니다! [🎲 배정하기]를 눌러주세요.`);
+  showToast(`✅ 학생 명단(${AppState.students.length}명)과 역할(${AppState.roles.length}개)이 저장되었습니다! [🎲 배정하기]를 눌러주세요.`);
 }
 
 function resetToDefault() {
@@ -869,10 +1057,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnCloseManageModal = document.getElementById('btnCloseManageModal');
   const btnSaveManage = document.getElementById('btnSaveManage');
   const btnResetDefault = document.getElementById('btnResetDefault');
+  const btnTogglePasteBox = document.getElementById('btnTogglePasteBox');
+  const btnApplyPastedTable = document.getElementById('btnApplyPastedTable');
 
   if (btnCloseManageModal) btnCloseManageModal.addEventListener('click', closeManageModal);
   if (btnSaveManage) btnSaveManage.addEventListener('click', saveManagedList);
   if (btnResetDefault) btnResetDefault.addEventListener('click', resetToDefault);
+  if (btnTogglePasteBox) btnTogglePasteBox.addEventListener('click', togglePasteBox);
+  if (btnApplyPastedTable) btnApplyPastedTable.addEventListener('click', handleApplyPastedTable);
 
   // 모달 배경 클릭 시 닫기
   const modals = document.querySelectorAll('.modal-overlay');

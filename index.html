@@ -201,7 +201,7 @@
          명단 및 역할 관리 모달
          ============================================================== -->
     <div id="manageModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="manageModalTitle">
-      <div class="modal-box">
+      <div class="modal-box" style="max-width: 680px;">
         <div class="modal-header">
           <h3 id="manageModalTitle" class="modal-title">👥 학생 및 학급 역할 관리</h3>
           <button id="btnCloseManageModal" type="button" class="btn-close" aria-label="닫기">✕</button>
@@ -209,17 +209,41 @@
         <div class="modal-body">
           <div class="manage-grid">
             <div class="form-group">
-              <label for="studentTextarea" class="form-label">학생 명단 (한 줄에 한 명씩) <span id="modalStudentCount" style="color: #64748B;">(12명)</span></label>
-              <textarea id="studentTextarea" class="form-textarea" rows="10" placeholder="김민준&#10;이서아&#10;박도윤..."></textarea>
+              <label for="studentTextarea" class="form-label">학생 명단 (한 줄에 한 명씩) <span id="modalStudentCount" style="color: #FF5A00; font-weight: 800;">(12명)</span></label>
+              <textarea id="studentTextarea" class="form-textarea" rows="8" placeholder="김민준&#10;이서아&#10;박도윤..."></textarea>
             </div>
             <div class="form-group">
-              <label class="form-label">등록된 역할 목록 <span id="modalRoleCount" style="color: #64748B;">(12개)</span></label>
-              <div id="manageRoleListBox" class="list-preview-box">
-                <!-- Dynamically rendered -->
+              <label for="roleTextarea" class="form-label">학급 역할 목록 (한 줄에 하나씩) <span id="modalRoleCount" style="color: #FF5A00; font-weight: 800;">(12개)</span></label>
+              <textarea id="roleTextarea" class="form-textarea" rows="8" placeholder="칠판 도우미 🧹&#10;급식 도우미 🍱&#10;우유 도우미 🥛..."></textarea>
+            </div>
+          </div>
+
+          <!-- 구글 시트 복사·붙여넣기 빠른 등록 (권한 문제 완벽 해결 도구) -->
+          <div class="guide-step-card" style="background: #FFFDF8; border: 1.5px dashed var(--iscream-orange-border); margin-top: 4px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="guide-step-title" style="font-size: 0.85rem;">📋 구글 시트 표 직접 붙여넣기 (권한 오류 시 1초 빠른 등록)</span>
+              <button id="btnTogglePasteBox" type="button" class="btn btn-print" style="padding: 3px 8px; font-size: 0.75rem;">열기 / 닫기</button>
+            </div>
+            <div id="pasteBoxContainer" style="display: none; margin-top: 8px;">
+              <p style="font-size: 0.8rem; color: #64748B; margin-bottom: 6px;">
+                💡 구글 스프레드시트나 엑셀에서 학생 열과 역할 열을 드래그 복사(Ctrl+C)하여 아래에 붙여넣기(Ctrl+V)하세요.
+              </p>
+              <textarea id="rawSheetPasteInput" class="form-textarea" rows="3" style="font-size: 0.8rem;" placeholder="예: 구글 시트 셀 복사 내용 붙여넣기 (학생과 역할이 탭으로 구분되어 들어옵니다)&#10;김민준	칠판 도우미&#10;이서아	급식 도우미"></textarea>
+              <div style="margin-top: 6px; text-align: right;">
+                <button id="btnApplyPastedTable" type="button" class="btn btn-sheet-load" style="font-size: 0.8rem; padding: 5px 12px;">📋 표 데이터 적용하기</button>
               </div>
             </div>
           </div>
-          <p style="font-size: 0.8rem; color: #718096;">
+
+          <!-- 현재 등록된 역할 미리보기 목록 -->
+          <div class="form-group" style="margin-top: 4px;">
+            <label class="form-label" style="font-size: 0.8rem; color: #64748B;">현재 등록된 역할 카드 미리보기</label>
+            <div id="manageRoleListBox" class="list-preview-box" style="max-height: 120px;">
+              <!-- Dynamically rendered -->
+            </div>
+          </div>
+
+          <p style="font-size: 0.8rem; color: #718096; margin-top: -4px;">
             * 학생 수와 역할 수가 동일하면 1:1로 정확하게 배정됩니다. 학생 수가 다를 경우 번호 순으로 순환 배정됩니다.
           </p>
         </div>
