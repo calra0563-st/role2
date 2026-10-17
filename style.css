@@ -1,62 +1,64 @@
 /* =========================================================
-   우리 반 1인 1역할 배정기 - Naver Clean Green Portal Style
-   (네이버 그린 #03C75A 기반의 깔끔하고 신뢰감 있는 UI)
+   우리 반 1인 1역할 배정기 - i-Scream Mall (아이스크림몰) Style
+   (선생님과 학생들이 사랑하는 아이스크림 에듀/몰 특유의
+    따뜻하고 활기찬 오렌지 & 옐로우 & 스카이블루 에듀 디자인)
    ========================================================= */
 
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Gowun+Dodum&display=swap');
 
 :root {
-  /* Naver Brand Color System */
-  --naver-green: #03C75A;
-  --naver-green-hover: #02B351;
-  --naver-green-active: #009F44;
-  --naver-green-light: #EBF9F1;
-  --naver-green-border: #B7EED1;
-  --naver-green-subtle: #F4FBF7;
+  /* i-Scream Signature Colors */
+  --iscream-orange: #FF5A00;
+  --iscream-orange-hover: #E85000;
+  --iscream-orange-active: #D14500;
+  --iscream-orange-light: #FFF0E8;
+  --iscream-orange-border: #FFD2BC;
 
-  /* Neutral Canvas & Surfaces */
-  --bg-canvas: #F5F6F8;
+  --iscream-yellow: #FFB800;
+  --iscream-yellow-light: #FFF9E5;
+  --iscream-yellow-border: #FFE49E;
+
+  --iscream-blue: #0088FF;
+  --iscream-blue-light: #EBF5FF;
+  --iscream-blue-border: #BCE0FD;
+
+  --iscream-green: #00BA88;
+  --iscream-green-light: #E6F8F3;
+  --iscream-green-border: #A3ECD9;
+
+  --iscream-purple: #8C4BFF;
+  --iscream-purple-light: #F4ECFF;
+  --iscream-purple-border: #DEC5FF;
+
+  /* Surfaces & Canvas */
+  --bg-canvas: #FFFDF9;
   --bg-surface: #FFFFFF;
   --bg-card: #FFFFFF;
 
-  /* Typography Colors */
-  --text-title: #111111;
-  --text-body: #333333;
+  /* Typography */
+  --text-title: #222222;
+  --text-body: #3D3D3D;
   --text-sub: #666666;
-  --text-muted: #8E8E93;
-  --text-disabled: #BFC2CA;
+  --text-muted: #999999;
 
-  /* Borders & Dividers */
-  --border-light: #E5E7EB;
-  --border-default: #DFE2E6;
-  --border-strong: #CDD0D5;
+  /* Borders & Shadows */
+  --border-light: #F0EDE8;
+  --border-default: #E6E1D8;
+  --border-strong: #D5CEC2;
 
-  /* Accent Sub-colors */
-  --accent-blue: #0077FF;
-  --accent-blue-bg: #EEF6FF;
-  --accent-blue-border: #CFE4FF;
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.04);
+  --shadow-card: 0 3px 12px rgba(255, 90, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+  --shadow-hover: 0 8px 20px rgba(255, 90, 0, 0.14), 0 2px 6px rgba(0, 0, 0, 0.04);
+  --shadow-btn-orange: 0 4px 14px rgba(255, 90, 0, 0.35);
 
-  --accent-orange: #FF7000;
-  --accent-orange-bg: #FFF3EB;
-  --accent-orange-border: #FFDEC9;
-
-  --accent-purple: #7839EE;
-  --accent-purple-bg: #F4EFFF;
-  --accent-purple-border: #DDD0FD;
-
-  /* Elevation */
-  --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
-  --shadow-hover: 0 6px 16px -2px rgba(3, 199, 90, 0.12), 0 3px 8px -2px rgba(0, 0, 0, 0.06);
-  --shadow-modal: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
-
-  --radius-xs: 4px;
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
   --radius-full: 9999px;
 
-  --font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  --font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Gowun Dodum', sans-serif;
   --font-num: 'Plus Jakarta Sans', 'Pretendard', sans-serif;
 }
 
@@ -77,7 +79,7 @@ body {
   overflow-x: hidden;
 }
 
-/* Background Subtle Gradient */
+/* Subtle Edu Dot Pattern */
 .bg-pattern {
   position: fixed;
   top: 0;
@@ -85,24 +87,29 @@ body {
   right: 0;
   bottom: 0;
   pointer-events: none;
-  background: linear-gradient(180deg, rgba(235, 249, 241, 0.45) 0%, rgba(245, 246, 248, 0.9) 260px, #F5F6F8 100%);
+  background-image: 
+    radial-gradient(#F5EDE0 1.3px, transparent 1.3px),
+    radial-gradient(#F5EDE0 1.3px, var(--bg-canvas) 1.3px);
+  background-size: 28px 28px;
+  background-position: 0 0, 14px 14px;
+  opacity: 0.75;
   z-index: -1;
 }
 
-/* App Header - Naver Clean White Bar with 1px border */
+/* App Header - i-Scream Style Clean White & Orange Accent Bar */
 .app-header {
   background: #FFFFFF;
-  border-bottom: 1px solid var(--border-default);
+  border-bottom: 2px solid var(--iscream-orange);
   position: sticky;
   top: 0;
   z-index: 40;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .header-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 14px 20px;
+  padding: 12px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -116,19 +123,18 @@ body {
   gap: 12px;
 }
 
-/* Naver Style Green Square Brand Mark */
+/* i-Scream Mascot Style Icon */
 .brand-icon {
-  background: var(--naver-green);
+  background: linear-gradient(135deg, #FF6F00 0%, #FF3D00 100%);
   color: #FFFFFF;
-  width: 38px;
-  height: 38px;
+  width: 42px;
+  height: 42px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-sm);
-  font-size: 1.35rem;
-  font-weight: 800;
-  box-shadow: 0 2px 6px rgba(3, 199, 90, 0.28);
+  border-radius: var(--radius-md);
+  font-size: 1.45rem;
+  box-shadow: 0 3px 8px rgba(255, 61, 0, 0.3);
 }
 
 .brand-title-wrap {
@@ -137,30 +143,29 @@ body {
 }
 
 .brand-title {
-  font-size: 1.15rem;
+  font-size: 1.25rem;
   font-weight: 800;
   color: var(--text-title);
   letter-spacing: -0.4px;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
-.brand-title .brand-naver-tag {
-  background: var(--naver-green-light);
-  color: var(--naver-green-dark);
-  border: 1px solid var(--naver-green-border);
-  font-size: 0.68rem;
-  font-weight: 700;
-  padding: 1px 6px;
+.brand-iscream-badge {
+  background: var(--iscream-orange-light);
+  color: var(--iscream-orange);
+  border: 1px solid var(--iscream-orange-border);
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 2px 7px;
   border-radius: var(--radius-xs);
-  vertical-align: middle;
+  letter-spacing: 0;
 }
 
 .brand-subtitle {
-  font-size: 0.78rem;
-  color: var(--text-muted);
-  letter-spacing: -0.2px;
+  font-size: 0.8rem;
+  color: var(--text-sub);
 }
 
 /* Header Action Buttons */
@@ -178,42 +183,45 @@ body {
   justify-content: center;
   gap: 6px;
   font-family: var(--font-family);
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: 0.875rem;
+  font-weight: 700;
   padding: 8px 14px;
   border-radius: var(--radius-sm);
-  border: 1px solid transparent;
+  border: 1.5px solid transparent;
   cursor: pointer;
   transition: all 0.15s ease-in-out;
   white-space: nowrap;
   user-select: none;
-  line-height: 1.2;
+}
+
+.btn:hover {
+  transform: translateY(-1.5px);
+  box-shadow: var(--shadow-sm);
 }
 
 .btn:active {
-  transform: translateY(1px);
+  transform: translateY(0);
 }
 
-/* Naver Button Variants */
+/* i-Scream Button Variants */
 .btn-sheet-load {
-  background: #FFFFFF;
-  border-color: var(--border-default);
-  color: var(--text-body);
+  background: var(--iscream-blue-light);
+  border-color: var(--iscream-blue-border);
+  color: var(--iscream-blue);
 }
 .btn-sheet-load:hover {
-  background: #F8F9FA;
-  border-color: var(--border-strong);
-  color: var(--text-title);
+  background: #E0EFFF;
+  border-color: var(--iscream-blue);
 }
 
 .btn-sheet-save {
-  background: var(--naver-green-light);
-  border-color: var(--naver-green-border);
-  color: var(--naver-green-dark);
+  background: var(--iscream-green-light);
+  border-color: var(--iscream-green-border);
+  color: #008F66;
 }
 .btn-sheet-save:hover {
-  background: #E0F7EB;
-  border-color: var(--naver-green);
+  background: #D4F4EB;
+  border-color: var(--iscream-green);
 }
 
 .btn-manage {
@@ -222,19 +230,19 @@ body {
   color: var(--text-body);
 }
 .btn-manage:hover {
-  background: #F8F9FA;
-  border-color: var(--border-strong);
+  background: #FAF8F5;
+  border-color: var(--iscream-orange);
+  color: var(--iscream-orange);
 }
 
 .btn-print {
-  background: #FFFFFF;
-  border-color: var(--border-default);
-  color: var(--text-body);
+  background: var(--iscream-yellow-light);
+  border-color: var(--iscream-yellow-border);
+  color: #8C6500;
 }
 .btn-print:hover {
-  background: #F8F9FA;
-  border-color: var(--naver-green);
-  color: var(--naver-green-dark);
+  background: #FFF3CF;
+  border-color: var(--iscream-yellow);
 }
 
 /* Main Content Area */
@@ -244,10 +252,11 @@ body {
   padding: 24px 20px 80px;
 }
 
-/* Classroom Banner Card - Naver Box Design */
+/* Classroom Banner Card - i-Scream Clean Box with Orange Tag */
 .classroom-banner {
   background: #FFFFFF;
-  border: 1px solid var(--border-default);
+  border: 1.5px solid var(--border-default);
+  border-left: 5px solid var(--iscream-orange);
   border-radius: var(--radius-md);
   padding: 18px 24px;
   margin-bottom: 24px;
@@ -262,32 +271,32 @@ body {
 .class-info-block {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 18px;
   flex-wrap: wrap;
 }
 
 .class-title-input {
   font-family: var(--font-family);
-  font-size: 1.35rem;
+  font-size: 1.4rem;
   font-weight: 800;
   color: var(--text-title);
-  background: #F9FAFB;
-  border: 1px solid var(--border-light);
+  background: #FFFBF7;
+  border: 1.5px solid var(--iscream-orange-border);
   border-radius: var(--radius-sm);
-  padding: 6px 12px;
-  width: 180px;
+  padding: 5px 12px;
+  width: 190px;
   outline: none;
   transition: all 0.15s;
 }
 
 .class-title-input:focus {
   background: #FFFFFF;
-  border-color: var(--naver-green);
-  box-shadow: 0 0 0 3px rgba(3, 199, 90, 0.12);
+  border-color: var(--iscream-orange);
+  box-shadow: 0 0 0 3px rgba(255, 90, 0, 0.15);
 }
 
 .class-meta-text {
-  font-size: 0.825rem;
+  font-size: 0.85rem;
   color: var(--text-sub);
   display: flex;
   align-items: center;
@@ -299,21 +308,20 @@ body {
   align-items: center;
   gap: 5px;
   font-size: 0.8rem;
-  font-weight: 700;
-  padding: 5px 12px;
+  font-weight: 800;
+  padding: 6px 14px;
   border-radius: var(--radius-full);
 }
 
 .status-ready {
-  background: #F1F3F5;
-  color: #6B7280;
-  border: 1px solid #E5E7EB;
+  background: #F4F1EB;
+  color: #7A7468;
 }
 
 .status-complete {
-  background: var(--naver-green-light);
-  color: var(--naver-green-dark);
-  border: 1px solid var(--naver-green-border);
+  background: var(--iscream-orange-light);
+  color: var(--iscream-orange);
+  border: 1px solid var(--iscream-orange-border);
 }
 
 /* Primary Hero Control Deck */
@@ -327,18 +335,17 @@ body {
 }
 
 .deck-headline {
-  font-size: 1.45rem;
+  font-size: 1.55rem;
   font-weight: 800;
   color: var(--text-title);
-  letter-spacing: -0.5px;
+  letter-spacing: -0.4px;
 }
 
 .deck-tagline {
-  font-size: 0.925rem;
+  font-size: 0.95rem;
   color: var(--text-sub);
-  max-width: 520px;
+  max-width: 540px;
   line-height: 1.55;
-  letter-spacing: -0.2px;
 }
 
 .deck-cta-group {
@@ -349,41 +356,39 @@ body {
   justify-content: center;
 }
 
-/* Naver Primary Solid Green Button */
+/* i-Scream Big Vivid Orange CTA Button */
 .btn-roll-huge {
   font-family: var(--font-family);
-  font-size: 1.05rem;
+  font-size: 1.15rem;
   font-weight: 800;
-  padding: 13px 34px;
-  background-color: var(--naver-green);
+  padding: 14px 38px;
+  background: linear-gradient(135deg, #FF6600 0%, #FF3D00 100%);
   color: #FFFFFF;
   border: none;
-  border-radius: var(--radius-sm);
-  box-shadow: 0 4px 14px rgba(3, 199, 90, 0.32);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-btn-orange);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  transition: all 0.15s ease-in-out;
+  gap: 10px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
   overflow: hidden;
   letter-spacing: -0.3px;
 }
 
 .btn-roll-huge:hover {
-  background-color: var(--naver-green-hover);
-  box-shadow: 0 6px 18px rgba(3, 199, 90, 0.42);
-  transform: translateY(-1.5px);
+  transform: translateY(-2.5px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(255, 61, 0, 0.45);
 }
 
 .btn-roll-huge:active {
-  background-color: var(--naver-green-active);
-  transform: translateY(0);
+  transform: translateY(1px) scale(0.99);
 }
 
 .dice-icon-spin {
   display: inline-block;
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   transition: transform 0.6s ease;
 }
 
@@ -393,23 +398,23 @@ body {
 
 @keyframes rollDice {
   0% { transform: rotate(0deg) scale(1); }
-  50% { transform: rotate(180deg) scale(1.15); }
+  50% { transform: rotate(180deg) scale(1.2); }
   100% { transform: rotate(360deg) scale(1); }
 }
 
-/* Statistics Ribbon - Naver Flat Bar */
+/* Statistics Ribbon - i-Scream Friendly Bar */
 .stats-ribbon {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 16px;
-  font-size: 0.825rem;
+  font-size: 0.85rem;
   color: var(--text-sub);
   background: #FFFFFF;
-  border: 1px solid var(--border-default);
-  padding: 6px 18px;
+  border: 1.5px solid var(--border-default);
+  padding: 6px 20px;
   border-radius: var(--radius-full);
-  box-shadow: var(--shadow-card);
+  box-shadow: var(--shadow-sm);
 }
 
 .stat-item {
@@ -420,26 +425,26 @@ body {
 
 .stat-number {
   font-family: var(--font-num);
-  font-weight: 700;
-  color: var(--naver-green-dark);
+  font-weight: 800;
+  color: var(--iscream-orange);
 }
 
 /* Card Grid */
 .cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(265px, 1fr));
-  gap: 16px;
+  gap: 18px;
   margin-top: 16px;
 }
 
-/* Individual Role Card - Naver Post / Card Style */
+/* Individual Role Card - i-Scream School Card */
 .role-card {
   background: var(--bg-card);
-  border: 1px solid var(--border-default);
+  border: 1.5px solid var(--border-default);
   border-radius: var(--radius-md);
   padding: 16px;
   position: relative;
-  transition: all 0.18s ease-in-out;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -448,20 +453,9 @@ body {
 }
 
 .role-card:hover {
-  transform: translateY(-2px);
-  border-color: var(--naver-green);
+  transform: translateY(-3px);
+  border-color: var(--iscream-orange);
   box-shadow: var(--shadow-hover);
-}
-
-/* Naver Style Accent Indicator Top Bar */
-.role-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: var(--naver-green);
 }
 
 /* Card Header (Number & Avatar) */
@@ -478,30 +472,30 @@ body {
   gap: 10px;
 }
 
-/* Student Avatar - Naver Green Tint Circle */
+/* Student Avatar - i-Scream Warm Rounded Avatar */
 .student-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: var(--naver-green-light);
-  color: var(--naver-green-dark);
-  border: 1px solid var(--naver-green-border);
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, #FFF3EC 0%, #FFE6D5 100%);
+  color: var(--iscream-orange);
+  border: 1.5px solid var(--iscream-orange-border);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 800;
 }
 
 .student-id {
   font-family: var(--font-num);
-  font-size: 0.725rem;
+  font-size: 0.75rem;
   font-weight: 700;
   color: var(--text-muted);
 }
 
 .student-name {
-  font-size: 1.05rem;
+  font-size: 1.15rem;
   font-weight: 800;
   color: var(--text-title);
   line-height: 1.2;
@@ -511,49 +505,48 @@ body {
 .card-order-tag {
   font-family: var(--font-num);
   font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--naver-green-dark);
-  background: var(--naver-green-light);
-  border: 1px solid var(--naver-green-border);
-  padding: 2px 7px;
+  font-weight: 800;
+  color: var(--iscream-orange);
+  background: var(--iscream-orange-light);
+  border: 1px solid var(--iscream-orange-border);
+  padding: 2px 8px;
   border-radius: var(--radius-xs);
 }
 
-/* Role Showcase Block - Naver Clean Rounded Box */
+/* Role Showcase Block - i-Scream Soft Box */
 .card-role-box {
-  background: #F9FAFB;
-  border: 1px solid var(--border-light);
+  background: #FFFDF9;
+  border: 1.5px solid #F3EDE3;
   border-radius: var(--radius-sm);
   padding: 12px;
   margin-top: 6px;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 6px;
 }
 
 .role-title-row {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .role-emoji {
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   line-height: 1;
 }
 
 .role-name {
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 800;
   color: var(--text-title);
-  letter-spacing: -0.2px;
+  letter-spacing: -0.3px;
 }
 
 .role-desc {
-  font-size: 0.8rem;
+  font-size: 0.825rem;
   color: var(--text-sub);
   line-height: 1.45;
-  letter-spacing: -0.15px;
 }
 
 /* Card Animation */
@@ -564,7 +557,7 @@ body {
 @keyframes cardPopIn {
   0% {
     opacity: 0;
-    transform: scale(0.95) translateY(8px);
+    transform: scale(0.94) translateY(10px);
   }
   100% {
     opacity: 1;
@@ -575,8 +568,8 @@ body {
 /* Empty State / Standby Box */
 .empty-state {
   background: #FFFFFF;
-  border: 1px dashed var(--border-strong);
-  border-radius: var(--radius-md);
+  border: 2px dashed var(--iscream-orange-border);
+  border-radius: var(--radius-lg);
   padding: 56px 24px;
   text-align: center;
   display: flex;
@@ -587,34 +580,38 @@ body {
 }
 
 .empty-icon {
-  font-size: 3rem;
-  color: var(--naver-green);
+  font-size: 3.5rem;
+  animation: floatBounce 2.5s ease-in-out infinite;
+}
+
+@keyframes floatBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
 }
 
 .empty-title {
-  font-size: 1.15rem;
+  font-size: 1.25rem;
   font-weight: 800;
   color: var(--text-title);
   letter-spacing: -0.3px;
 }
 
 .empty-desc {
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   color: var(--text-sub);
-  max-width: 420px;
+  max-width: 440px;
   line-height: 1.6;
-  letter-spacing: -0.2px;
 }
 
-/* Modals - Naver Clean Layer */
+/* Modals */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(2px);
+  background: rgba(30, 20, 10, 0.45);
+  backdrop-filter: blur(3px);
   display: none;
   align-items: center;
   justify-content: center;
@@ -628,34 +625,34 @@ body {
 
 .modal-box {
   background: #FFFFFF;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   width: 100%;
-  max-width: 600px;
+  max-width: 620px;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
-  box-shadow: var(--shadow-modal);
+  box-shadow: 0 20px 30px rgba(0, 0, 0, 0.15);
   overflow: hidden;
-  animation: modalEnter 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  border: 1px solid var(--border-default);
+  animation: modalEnter 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1.5px solid var(--border-default);
 }
 
 @keyframes modalEnter {
-  0% { opacity: 0; transform: scale(0.97) translateY(8px); }
+  0% { opacity: 0; transform: scale(0.96) translateY(10px); }
   100% { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 .modal-header {
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--border-light);
+  padding: 16px 22px;
+  border-bottom: 1.5px solid var(--border-light);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #FFFFFF;
+  background: #FFFDF9;
 }
 
 .modal-title {
-  font-size: 1.05rem;
+  font-size: 1.15rem;
   font-weight: 800;
   color: var(--text-title);
   display: flex;
@@ -664,27 +661,27 @@ body {
 }
 
 .btn-close {
-  background: transparent;
+  background: #F4EFEB;
   border: none;
   width: 32px;
   height: 32px;
-  border-radius: var(--radius-xs);
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: var(--text-muted);
+  color: var(--text-sub);
   font-size: 1.1rem;
 }
 .btn-close:hover {
-  background: #F1F3F5;
+  background: #E8E1D7;
   color: var(--text-title);
 }
 
 .modal-body {
-  padding: 20px;
+  padding: 22px;
   overflow-y: auto;
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   color: var(--text-body);
   display: flex;
   flex-direction: column;
@@ -692,9 +689,9 @@ body {
 }
 
 .modal-footer {
-  padding: 12px 20px;
-  border-top: 1px solid var(--border-light);
-  background: #F9FAFB;
+  padding: 14px 22px;
+  border-top: 1.5px solid var(--border-light);
+  background: #FFFDF9;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -709,32 +706,32 @@ body {
 }
 
 .form-label {
-  font-weight: 700;
+  font-weight: 800;
   color: var(--text-title);
-  font-size: 0.825rem;
+  font-size: 0.85rem;
 }
 
 .form-input, .form-textarea {
   font-family: inherit;
   font-size: 0.875rem;
-  padding: 9px 12px;
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-xs);
+  padding: 10px 14px;
+  border: 1.5px solid var(--border-default);
+  border-radius: var(--radius-sm);
   outline: none;
   transition: all 0.15s;
   background: #FFFFFF;
 }
 
 .form-input:focus, .form-textarea:focus {
-  border-color: var(--naver-green);
-  box-shadow: 0 0 0 3px rgba(3, 199, 90, 0.12);
+  border-color: var(--iscream-orange);
+  box-shadow: 0 0 0 3px rgba(255, 90, 0, 0.15);
 }
 
 .guide-step-card {
-  background: #F8F9FA;
-  border: 1px solid var(--border-default);
+  background: #FFFDF9;
+  border: 1.5px solid var(--iscream-orange-border);
   border-radius: var(--radius-sm);
-  padding: 12px 14px;
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -742,18 +739,18 @@ body {
 
 .guide-step-title {
   font-weight: 800;
-  color: var(--text-title);
+  color: var(--iscream-orange);
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.85rem;
+  font-size: 0.875rem;
 }
 
 /* Manage List Tabs */
 .manage-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px;
+  gap: 16px;
 }
 
 @media (max-width: 600px) {
@@ -763,9 +760,9 @@ body {
 }
 
 .list-preview-box {
-  background: #F9FAFB;
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-xs);
+  background: #FFFDF9;
+  border: 1.5px solid var(--border-default);
+  border-radius: var(--radius-sm);
   padding: 10px;
   max-height: 220px;
   overflow-y: auto;
@@ -779,9 +776,9 @@ body {
   align-items: center;
   justify-content: space-between;
   background: #FFFFFF;
-  padding: 6px 8px;
+  padding: 7px 10px;
   border-radius: var(--radius-xs);
-  font-size: 0.8rem;
+  font-size: 0.825rem;
   border: 1px solid var(--border-light);
 }
 
@@ -799,18 +796,19 @@ body {
 }
 
 .toast {
-  background: #111111;
+  background: #2D241E;
   color: #FFFFFF;
-  padding: 10px 18px;
-  border-radius: var(--radius-sm);
-  font-size: 0.85rem;
+  padding: 10px 20px;
+  border-radius: var(--radius-full);
+  font-size: 0.875rem;
   font-weight: 700;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
   display: flex;
   align-items: center;
   gap: 8px;
   animation: toastIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   pointer-events: auto;
+  border: 1px solid rgba(255, 90, 0, 0.4);
 }
 
 @keyframes toastIn {
@@ -872,10 +870,10 @@ body {
 
   .print-board-header {
     text-align: center;
-    border: 2px solid #03C75A !important;
+    border: 2.5px solid #FF5A00 !important;
     padding: 12px;
     margin-bottom: 10px;
-    background: #F4FBF7 !important;
+    background: #FFF8F4 !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
     border-radius: 6px;
@@ -907,8 +905,8 @@ body {
   }
 
   .print-card-item {
-    border: 1.5px solid #222222 !important;
-    border-top: 3px solid #03C75A !important;
+    border: 1.5px solid #333333 !important;
+    border-top: 3px solid #FF5A00 !important;
     border-radius: 4px !important;
     padding: 7px 9px !important;
     background: #FFFFFF !important;
@@ -958,7 +956,7 @@ body {
 
   .print-footer-banner {
     margin-top: 10px;
-    border-top: 2px solid #222222;
+    border-top: 2px solid #FF5A00;
     padding-top: 6px;
     display: flex;
     justify-content: space-between;
